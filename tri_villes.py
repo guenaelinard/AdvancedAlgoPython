@@ -6,7 +6,7 @@ import folium
 from haversine import haversine
 
 
-class Ville :
+class Ville:
     def __init__(self, nom_commune, codes_postaux, latitude, longitude, dist, distanceFromGrenoble):
         self.nom_commune = nom_commune
         self.codes_postaux = codes_postaux
@@ -24,17 +24,18 @@ def loadFile():
                                                       "*.csv*"),
                                                      ("all files",
                                                       "*.*")))
-    changeLabelFile("Fichier : "+filename)
+    changeLabelFile("Fichier : " + filename)
     with open(filename, 'r', encoding='UTF-8') as file:
         csvreader = csv.reader(file)
         next(csvreader)  # skip header line
         for row in csvreader:
             data = row[0].split(";")
-            try :
+            try:
                 ville = Ville(data[8], data[9], float(data[11]), float(data[12]), float(data[13]), 0)
                 ville.distanceFromGrenoble = getDistanceFromGrenoble(ville)
                 listVille.append(ville)
-            except : continue
+            except:
+                continue
 
 
 def getDistanceFromGrenoble(ville):
@@ -46,10 +47,12 @@ def getDistanceFromGrenoble(ville):
 
     return distance
 
+
 def getDistance(ville1, ville2):
     distance = haversine((ville1.latitude, ville1.longitude), (ville2.latitude, ville2.longitude))
     distance = round(distance, 2)
     return distance
+
 
 def isLess(listVille, i, j):
     if listVille[i].distanceFromGrenoble < listVille[j].distanceFromGrenoble:
@@ -57,9 +60,9 @@ def isLess(listVille, i, j):
 
 
 def swap(listVille, i, j):
-    tempfile = listVille[i]
+    temp_file = listVille[i]
     listVille[i] = listVille[j]
-    listVille[j] = tempfile
+    listVille[j] = temp_file
     return True
 
 
@@ -92,79 +95,78 @@ def sort():
     listVilleSorted = listVille.copy()
 
     if typeTriSelection == "Tri par insertion":
-        listVilleSorted = insertsort(listVilleSorted)
+        listVilleSorted = insert_sort(listVilleSorted)
     elif typeTriSelection == "Tri par sélection":
-        listVilleSorted = selectionsort(listVilleSorted)
+        listVilleSorted = selection_sort(listVilleSorted)
     elif typeTriSelection == "Tri à bulles":
-        listVilleSorted = bubblesort(listVilleSorted)
+        listVilleSorted = bubble_sort(listVilleSorted)
     elif typeTriSelection == "Tri de Shell":
-        listVilleSorted = shellsort(listVilleSorted)
+        listVilleSorted = shell_sort(listVilleSorted)
     elif typeTriSelection == "Tri par fusion":
-        listVilleSorted = mergesort(listVilleSorted)
+        listVilleSorted = merge_sort(listVilleSorted)
     elif typeTriSelection == "Tri par tas":
-        listVilleSorted = heapsort(listVilleSorted)
+        listVilleSorted = heap_sort(listVilleSorted)
     elif typeTriSelection == "Tri rapide":
-        listVilleSorted = quicksort(listVilleSorted,0,len(listVilleSorted)-1)
+        listVilleSorted = quick_sort(listVilleSorted, 0, len(listVilleSorted) - 1)
     elif typeTriSelection == "Tri Nearest":
-        listVilleSorted = nearest(listVilleSorted)
+        listVilleSorted = nearest_sort(listVilleSorted)
     elif typeTriSelection == "Tri Glouton":
-        listVilleSorted = gloutonSorted(listVilleSorted)
+        listVilleSorted = glouton_sort(listVilleSorted)
     elif typeTriSelection == "Tri 2-opt":
-        listVilleSorted = twoopt(listVilleSorted)
+        listVilleSorted = two_opt_sort(listVilleSorted)
 
     for ville in range(len(listVilleSorted)):
-        listVilleSortedBox.insert(END, listVilleSorted[ville].nom_commune + " - (" + str(listVilleSorted[ville].distanceFromGrenoble)
+        listVilleSortedBox.insert(END, listVilleSorted[ville].nom_commune + " - (" + str(
+            listVilleSorted[ville].distanceFromGrenoble)
                                   + " km de Grenoble)")
         listVilleSortedBox.itemconfig(ville, fg="black")
 
     listVilleSortedBox.config(yscrollcommand=scrollbar.set)
     scrollbar.config(command=listVilleSortedBox.yview)
 
+
 # -------------------------------------------------- SORT FUNCTIONS --------------------------------------------------
 
-def insertsort(listVille):
-
+def insert_sort(listVille):
     n = len(listVille)
-    for i in range(n) :
+    for i in range(n):
         temp = listVille[i]
         j = i
-        while j > 0 and isLess(listVille,j, j-1) :
-            listVille[j] = listVille[j-1]
-            j = j-1
+        while j > 0 and isLess(listVille, j, j - 1):
+            listVille[j] = listVille[j - 1]
+            j = j - 1
             listVille[j] = temp
 
     return listVille
 
 
-def selectionsort(listVille):
-
+def selection_sort(listVille):
     n = len(listVille)
-    for i in range(n) :
+    for i in range(n):
         minVal = i
-        for j in range(i+1,n) :
-            if isLess(listVille, j, minVal) :
+        for j in range(i + 1, n):
+            if isLess(listVille, j, minVal):
                 swap(listVille, j, minVal)
 
     return listVille
 
 
-def bubblesort(listVille):
-
+def bubble_sort(listVille):
     n = len(listVille)
     passage = 0
     permute = True
     while permute:
         permute = False
-        for i in range(n-1-passage):
-            if isLess(listVille, i+1, i):
-                swap(listVille, i, i+1)
+        for i in range(n - 1 - passage):
+            if isLess(listVille, i + 1, i):
+                swap(listVille, i, i + 1)
                 permute = True
         passage = passage + 1
 
     return listVille
 
 
-def shellsort(listVille):
+def shell_sort(listVille):
     length = len(listVille)
     n = 0
     while n < int(length / 3):
@@ -173,29 +175,31 @@ def shellsort(listVille):
     while n > 0:
         for i in range(n, length):
             j = i
-            while j > n - 1 and isLess(listVille, j, j-n) :
+            while j > n - 1 and isLess(listVille, j, j - n):
                 swap(listVille, j, j - n)
                 j = j - n
         n = int((n - 1) / 3)
     return listVille
 
 
-def mergesort(listVille):
+def merge_sort(listVille):
     print("implement me !")
     return listVille
 
 
-def heapsort(listVille):
+def heap_sort(listVille):
     print("implement me !")
     return listVille
 
-def quicksort(listVille, first, last):
+
+def quick_sort(listVille, first, last):
     if first < last:
         p = partition(listVille, first, last)
         quicksort(listVille, first, p - 1)
         quicksort(listVille, p + 1, last)
 
     return listVille
+
 
 def partition(listVille, first, last):
     pivot = listVille[last]
@@ -207,19 +211,21 @@ def partition(listVille, first, last):
     listVille[i + 1], listVille[last] = listVille[last], listVille[i + 1]
     return i + 1
 
-def nearest(listVille):
+
+def nearest_sort(listVille):
     optimizedPath = [listVille[0]]
-    while len(listVille) != 0 :
+    while len(listVille) != 0:
         temp = 0
         minDistance = float('inf')
-        for i in range(0,len(listVille)-1) :
-            distance = getDistance(optimizedPath[len(optimizedPath)-1], listVille[i])
-            if distance < minDistance and listVille[i] != optimizedPath[len(optimizedPath)-1]:
+        for i in range(0, len(listVille) - 1):
+            distance = getDistance(optimizedPath[len(optimizedPath) - 1], listVille[i])
+            if distance < minDistance and listVille[i] != optimizedPath[len(optimizedPath) - 1]:
                 minDistance = distance
                 temp = i
         optimizedPath.append(listVille[temp])
         listVille.remove(listVille[temp])
     return optimizedPath
+
 
 # Creation de la fenêtre
 fenetre = Tk()
@@ -241,8 +247,8 @@ listTri = ["Tri par insertion",
 typeTriSelection = "Tri par insertion"
 
 labelFileExplorer = Label()
-canvas = Canvas(fenetre, width=width + 2*offset,
-                height=height + 2*offset, bg='white')
+canvas = Canvas(fenetre, width=width + 2 * offset,
+                height=height + 2 * offset, bg='white')
 buttonValidation = Button(command=sort)
 
 list = Listbox(fenetre, width=20, height=len(listTri), selectmode="single")
@@ -270,6 +276,3 @@ listVilleSortedBox.pack(side=LEFT, fill=BOTH)
 scrollbar = Scrollbar(fenetre, orient=VERTICAL)
 scrollbar.pack(side=RIGHT, fill=BOTH)
 fenetre.mainloop()
-
-
-
